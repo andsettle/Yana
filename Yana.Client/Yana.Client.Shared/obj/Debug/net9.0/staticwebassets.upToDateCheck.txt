@@ -1,0 +1,7 @@
+wwwroot\app.css
+wwwroot\bootstrap\bootstrap.min.css
+wwwroot\bootstrap\bootstrap.min.css.map
+wwwroot\favicon.png
+C:\Users\drew\source\repos\Yana\Yana.Client\Yana.Client.Shared\wwwroot\app.css
+C:\Users\drew\source\repos\Yana\Yana.Client\Yana.Client.Shared\wwwroot\bootstrap\bootstrap.min.css
+C:\Users\drew\source\repos\Yana\Yana.Client\Yana.Client.Shared\wwwroot\bootstrap\bootstrap.min.css.map

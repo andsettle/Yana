@@ -1,0 +1,3 @@
+C:\Users\drew\source\repos\Yana\Yana.Client\Yana.Client.Shared\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\drew\source\repos\Yana\Yana.Client\Yana.Client.Shared\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\drew\source\repos\Yana\Yana.Client\Yana.Client.Shared\obj\Debug\net9.0\staticwebassets.build.json

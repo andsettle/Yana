@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Yana.Client.Shared.props" />
+</Project>

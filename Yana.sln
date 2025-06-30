@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36203.30
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yana.Api", "Yana.Api\Yana.Api.csproj", "{EA6A5731-BACE-4AB9-9DE5-3FC108EE807F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yana.Client", "Yana.Client\Yana.Client\Yana.Client.csproj", "{C30254FC-1968-4BDF-8CFF-2862847090CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yana.Client.Shared", "Yana.Client\Yana.Client.Shared\Yana.Client.Shared.csproj", "{8D6F4291-E704-4FC1-AF7B-4EEDB13B7F2C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yana.Client.Web", "Yana.Client\Yana.Client.Web\Yana.Client.Web.csproj", "{FD4D2290-1AD1-48CA-9914-F58F730C9F9E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EA6A5731-BACE-4AB9-9DE5-3FC108EE807F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA6A5731-BACE-4AB9-9DE5-3FC108EE807F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA6A5731-BACE-4AB9-9DE5-3FC108EE807F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA6A5731-BACE-4AB9-9DE5-3FC108EE807F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C30254FC-1968-4BDF-8CFF-2862847090CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C30254FC-1968-4BDF-8CFF-2862847090CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C30254FC-1968-4BDF-8CFF-2862847090CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C30254FC-1968-4BDF-8CFF-2862847090CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D6F4291-E704-4FC1-AF7B-4EEDB13B7F2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D6F4291-E704-4FC1-AF7B-4EEDB13B7F2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D6F4291-E704-4FC1-AF7B-4EEDB13B7F2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D6F4291-E704-4FC1-AF7B-4EEDB13B7F2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD4D2290-1AD1-48CA-9914-F58F730C9F9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD4D2290-1AD1-48CA-9914-F58F730C9F9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD4D2290-1AD1-48CA-9914-F58F730C9F9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD4D2290-1AD1-48CA-9914-F58F730C9F9E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9FDA69F3-FEE0-43B8-AEF2-A361042F7695}
+	EndGlobalSection
+EndGlobal

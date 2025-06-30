@@ -1,4 +1,0 @@
-wwwroot\app.css
-wwwroot\index.html
-C:\Users\drew\source\repos\Yana\Yana.Client\Yana.Client\wwwroot\index.html
-C:\Users\drew\source\repos\Yana\Yana.Client\Yana.Client\wwwroot\app.css

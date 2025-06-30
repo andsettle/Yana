@@ -435,6 +435,8 @@ $RECYCLE.BIN/
 [Aa]ndroid/[Oo]bj/
 *.apk
 *.aab
+**/obj/Debug/net9.0-android/android/*.ll
+
 
 # iOS
 ios/bin/

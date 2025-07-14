@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Yana.Client.Shared.Models;
 
-namespace Yana.Client.Services
+namespace Yana.Client.Shared.Services
 {
-    public class NotesService
+    public class NotesService : INotesService
     {
         private readonly HttpClient _httpClient;
 

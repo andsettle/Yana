@@ -1,6 +1,7 @@
 using Yana.Client.Shared.Services;
 using Yana.Client.Web.Components;
-using Yana.Client.Web.Services;
+using Yana.Client.Web;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,8 +9,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Add device-specific services used by the Yana.Client.Shared project
-builder.Services.AddSingleton<IFormFactor, FormFactor>();
+builder.Services.AddScoped(sp =>
+{
+    HttpClient httpClient = new HttpClient { BaseAddress = new Uri("https://localhost:7071/") }; // <--- REPLACE YOUR_API_PORT
+
+    // If you need to include credentials (cookies, auth headers) with cross-origin requests,
+    // you might use something like this, though for basic GET it's not strictly necessary.
+    // var handler = new HttpClientHandler { AllowAutoRedirect = false }; // Or more advanced setups
+    // httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://localhost:YOUR_API_PORT/") };
+
+    return httpClient;
+});
+
+builder.Services.AddScoped<INotesService, NotesService>();
 
 var app = builder.Build();
 

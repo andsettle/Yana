@@ -1,0 +1,39 @@
+﻿@page "/notes"
+@using Yana.Client.Shared.Models
+@using Yana.Client.Shared.Services
+@inject INotesService NotesService
+
+<h3>Your Notes</h3>
+
+@if (notes == null)
+{
+    <p><em>Loading notes...</em></p>
+}
+else if (!notes.Any())
+{
+    <p><em>No notes found. Create one!</em></p>
+}
+else
+{
+    <div>
+        @foreach (var note in notes)
+        {
+            <div>
+                <div>
+                    <h5>@note.Title</h5>
+                    <small>Last Modified: @note.UpdatedDate</small>
+                </div>
+                <button>View Details</button>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<Note>? notes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        notes = await NotesService.GetNotesAsync();
+    }
+}

@@ -18,16 +18,16 @@ This document outlines the planned development phases and key tasks for "Yana" (
 
 **Goal:** Get the `Yana.Client` (both MAUI and Web aspects) fully functional with CRUD operations by consuming the `Yana.Api` (still using in-memory data). This phase will solidify your Blazor and API consumption skills.
 
-* **Task 1.1: Display All Notes (GET Integration)**
-    * Create `NotesList.razor` in `Yana.Client.Shared/Components/Pages`.
-    * Inject `INotesService`.
-    * Call `GetNotesAsync()` on component initialization.
-    * Display the retrieved notes in a user-friendly list format (e.g., table, cards).
-* **Task 1.2: Add New Note Form (POST Integration)**
-    * Create a Blazor form component for creating a new note.
-    * Bind form inputs to a new `Note` object (or a DTO).
-    * Call `INotesService.CreateNoteAsync()` (will add this to the service).
-    * Handle success/error messages in the UI.
+* ~~**Task 1.1: Display All Notes (GET Integration)**~~
+    ~~* Create `NotesList.razor` in `Yana.Client.Shared/Components/Pages`.~~
+    ~~* Inject `INotesService`.~~
+    ~~* Call `GetNotesAsync()` on component initialization.~~
+    ~~* Display the retrieved notes in a user-friendly list format (e.g., table, cards).~~
+* ~~**Task 1.2: Add New Note Form (POST Integration)**~~
+    ~~* Create a Blazor form component for creating a new note.~~
+    ~~* Bind form inputs to a new `Note` object (or a DTO).~~
+    ~~* Call `INotesService.CreateNoteAsync()` (will add this to the service).~~
+    ~~* Handle success/error messages in the UI.~~
 * **Task 1.3: View Note Details (GET by ID Integration)**
     * Create a Blazor page/component to display a single note's details.
     * Implement navigation from the list to the detail view (e.g., using `NavLink` or `NavigationManager`).

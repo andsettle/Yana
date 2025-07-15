@@ -1,10 +1,27 @@
 ﻿@page "/"
-@using Yana.Client.Shared.Services
 
 <PageTitle>Home - Yana</PageTitle>
 
-<p>Yet Another Notes App</p>
-<p>Go to the <a href="notes">Notes List</a> to start managing your notes.</p>
+<div class="text-center">
+    <h1 class="display-4">Welcome to Yana</h1>
+    <p class="lead">Yet Another Notes App</p>
+    <p class="text-muted mb-4">Your simple, cross-platform note-taking solution</p>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Get Started</h5>
+                    <p class="card-text">Organize your thoughts, ideas, and important information with ease.</p>
+                    <div class="d-grid gap-2 d-md-block">
+                        <a href="/notes" class="btn btn-primary btn-lg me-md-2">View My Notes</a>
+                        <a href="/notes/create" class="btn btn-outline-primary btn-lg">Create New Note</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
 

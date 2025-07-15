@@ -1,0 +1,99 @@
+@page "/notes/create"
+@using Yana.Client.Shared.Models
+@using Yana.Client.Shared.Services
+@inject INotesService NotesService
+@inject NavigationManager Navigation
+
+<PageTitle>Create New Note</PageTitle>
+
+<h3>Create New Note</h3>
+
+<div class="row">
+    <div class="col-md-8">
+        <EditForm Model="newNote" OnValidSubmit="HandleValidSubmit" FormName="CreateNoteForm">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+
+            <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <InputText id="title" class="form-control" @bind-Value="newNote.Title" placeholder="Enter note title..." />
+                <ValidationMessage For="@(() => newNote.Title)" class="text-danger" />
+            </div>
+
+            <div class="mb-3">
+                <label for="content" class="form-label">Content</label>
+                <InputTextArea id="content" class="form-control" rows="10" @bind-Value="newNote.Content" placeholder="Write your note content here..." />
+                <ValidationMessage For="@(() => newNote.Content)" class="text-danger" />
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                    @if (isSubmitting)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        <text>Creating...</text>
+                    }
+                    else
+                    {
+                        <text>Create Note</text>
+                    }
+                </button>
+                <a href="/notes" class="btn btn-secondary ms-2">Cancel</a>
+            </div>
+        </EditForm>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                @errorMessage
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="alert alert-success" role="alert">
+                @successMessage
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private Note newNote = new Note();
+    private bool isSubmitting = false;
+    private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
+
+    private async Task HandleValidSubmit()
+    {
+        isSubmitting = true;
+        errorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        try
+        {
+            var createdNote = await NotesService.CreateNoteAsync(newNote);
+            
+            if (createdNote != null)
+            {
+                successMessage = "Note created successfully!";
+                
+                // Navigate back to notes list after a short delay
+                await Task.Delay(1500);
+                Navigation.NavigateTo("/notes");
+            }
+            else
+            {
+                errorMessage = "Failed to create note. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

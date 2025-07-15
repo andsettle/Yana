@@ -10,5 +10,6 @@ namespace Yana.Client.Shared.Services
     public interface INotesService
     {
         Task<List<Note>> GetNotesAsync();
+        Task<Note?> CreateNoteAsync(Note note);
     }
 }

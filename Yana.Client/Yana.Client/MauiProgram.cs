@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Components.WebView.Maui;
 using Yana.Client.Services;
 using Yana.Client.Shared.Services;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Yana.Client
 {
@@ -26,29 +28,59 @@ namespace Yana.Client
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
+
+            // Configure HttpClient with platform-specific base addresses and handlers
             builder.Services.AddSingleton(sp =>
             {
-                HttpClient httpClient = new HttpClient();
+                var logger = sp.GetService<ILogger<HttpClient>>();
+                
+                HttpClient httpClient;
 
 #if DEBUG 
                 if (DeviceInfo.Platform == DevicePlatform.Android)
                 {
-                    httpClient.BaseAddress = new Uri("https://10.0.2.2:7071/");
+                    // Create a custom handler for Android that bypasses SSL validation for development
+                    var handler = new HttpClientHandler();
+                    handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+                    
+                    httpClient = new HttpClient(handler);
+                    var baseAddress = "http://10.0.2.2:5063/";
+                    httpClient.BaseAddress = new Uri(baseAddress);
+                    logger?.LogInformation($"Android: Setting HttpClient BaseAddress to {baseAddress} with custom SSL handler");
                 }
                 else if (DeviceInfo.Platform == DevicePlatform.WinUI)
                 {
-                    httpClient.BaseAddress = new Uri("https://localhost:7071/");
+                    httpClient = new HttpClient();
+                    var baseAddress = "https://localhost:7071/";
+                    httpClient.BaseAddress = new Uri(baseAddress);
+                    logger?.LogInformation($"Windows: Setting HttpClient BaseAddress to {baseAddress}");
                 }
                 else
                 {
                     // for macos and ios dev default to localhost 
-                    httpClient.BaseAddress = new Uri("https://localhost:7071");
+                    httpClient = new HttpClient();
+                    var baseAddress = "https://localhost:7071/";
+                    httpClient.BaseAddress = new Uri(baseAddress);
+                    logger?.LogInformation($"iOS/macOS: Setting HttpClient BaseAddress to {baseAddress}");
                 }
 #else
-            httpClient.BaseAddress = new Uri("https://your-deployed-yana-api.azurewebsites.net/"); // REPLACE WITH YOUR ACTUAL DEPLOYED URL LATER
+                httpClient = new HttpClient();
+                var baseAddress = "https://your-deployed-yana-api.azurewebsites.net/"; // REPLACE WITH YOUR ACTUAL DEPLOYED URL LATER
+                httpClient.BaseAddress = new Uri(baseAddress);
+                logger?.LogInformation($"Production: Setting HttpClient BaseAddress to {baseAddress}");
 #endif
+                
+                // Set timeout for debugging connectivity issues
+                httpClient.Timeout = TimeSpan.FromSeconds(30);
+                
+                // Add default headers
+                httpClient.DefaultRequestHeaders.Add("User-Agent", "Yana-MAUI-Client");
+                
                 return httpClient;
             });
+
+            // Register the NotesService for dependency injection
+            builder.Services.AddScoped<INotesService, NotesService>();
 
             return builder.Build();
         }

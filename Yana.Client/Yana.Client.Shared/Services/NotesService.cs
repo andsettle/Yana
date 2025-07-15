@@ -3,40 +3,151 @@ using System.Net.Http.Json;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Yana.Client.Shared.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Yana.Client.Shared.Services
 {
     public class NotesService : INotesService
     {
         private readonly HttpClient _httpClient;
+        private readonly ILogger<NotesService>? _logger;
 
-        public NotesService(HttpClient httpClient)
+        public NotesService(HttpClient httpClient, ILogger<NotesService>? logger = null)
         {
             _httpClient = httpClient;
+            _logger = logger;
         }
 
         public async Task<List<Note>> GetNotesAsync()
         {
             try
             {
+                var requestUri = $"{_httpClient.BaseAddress}api/Notes";
+                _logger?.LogInformation($"Attempting to fetch notes from: {requestUri}");
+                _logger?.LogInformation($"HttpClient.BaseAddress: {_httpClient.BaseAddress}");
+                _logger?.LogInformation($"Request timeout: {_httpClient.Timeout}");
+                
                 // GetFromJsonAsync automatically deserializes the JSON response into a List<Note>
                 var notes = await _httpClient.GetFromJsonAsync<List<Note>>("api/Notes");
+                
+                _logger?.LogInformation($"Successfully fetched {notes?.Count ?? 0} notes");
                 return notes ?? new List<Note>();
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine($"Error Fetching notes: {ex.Message}");
+                var errorMsg = $"HTTP Error fetching notes from {_httpClient.BaseAddress}: {ex.Message}";
+                _logger?.LogError(ex, errorMsg);
+                Console.WriteLine(errorMsg);
+                
+                // Log additional details for debugging
+                if (ex.InnerException != null)
+                {
+                    var innerMsg = $"Inner exception: {ex.InnerException.Message}";
+                    _logger?.LogError(innerMsg);
+                    Console.WriteLine(innerMsg);
+                }
+                
+                return new List<Note>();
+            }
+            catch (TaskCanceledException ex)
+            {
+                var errorMsg = $"Request timeout fetching notes from {_httpClient.BaseAddress}: {ex.Message}";
+                _logger?.LogError(ex, errorMsg);
+                Console.WriteLine(errorMsg);
                 return new List<Note>();
             }
             catch (NotSupportedException ex)
             {
-                Console.WriteLine($"The content type is not supported: {ex.Message}");
+                var errorMsg = $"Content type not supported: {ex.Message}";
+                _logger?.LogError(ex, errorMsg);
+                Console.WriteLine(errorMsg);
                 return new List<Note>();
             }
             catch (System.Text.Json.JsonException ex)
             {
-                Console.WriteLine($"Invalid Json: {ex.Message}");
+                var errorMsg = $"Invalid JSON response: {ex.Message}";
+                _logger?.LogError(ex, errorMsg);
+                Console.WriteLine(errorMsg);
                 return new List<Note>();
+            }
+            catch (Exception ex)
+            {
+                var errorMsg = $"Unexpected error fetching notes: {ex.GetType().Name} - {ex.Message}";
+                _logger?.LogError(ex, errorMsg);
+                Console.WriteLine(errorMsg);
+                
+                // Log stack trace for debugging
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                
+                return new List<Note>();
+            }
+        }
+
+        public async Task<Note?> CreateNoteAsync(Note note)
+        {
+            try
+            {
+                var requestUri = $"{_httpClient.BaseAddress}api/Notes";
+                _logger?.LogInformation($"Attempting to create note at: {requestUri}");
+                
+                var response = await _httpClient.PostAsJsonAsync("api/Notes", note);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var createdNote = await response.Content.ReadFromJsonAsync<Note>();
+                    _logger?.LogInformation($"Successfully created note with ID: {createdNote?.Id}");
+                    return createdNote;
+                }
+                else
+                {
+                    var errorMsg = $"Error creating note: {response.StatusCode} - {response.ReasonPhrase}";
+                    _logger?.LogError(errorMsg);
+                    Console.WriteLine(errorMsg);
+                    return null;
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                var errorMsg = $"HTTP Error creating note: {ex.Message}";
+                _logger?.LogError(ex, errorMsg);
+                Console.WriteLine(errorMsg);
+                
+                if (ex.InnerException != null)
+                {
+                    var innerMsg = $"Inner exception: {ex.InnerException.Message}";
+                    _logger?.LogError(innerMsg);
+                    Console.WriteLine(innerMsg);
+                }
+                
+                return null;
+            }
+            catch (TaskCanceledException ex)
+            {
+                var errorMsg = $"Request timeout creating note: {ex.Message}";
+                _logger?.LogError(ex, errorMsg);
+                Console.WriteLine(errorMsg);
+                return null;
+            }
+            catch (NotSupportedException ex)
+            {
+                var errorMsg = $"Content type not supported: {ex.Message}";
+                _logger?.LogError(ex, errorMsg);
+                Console.WriteLine(errorMsg);
+                return null;
+            }
+            catch (System.Text.Json.JsonException ex)
+            {
+                var errorMsg = $"Invalid JSON in response: {ex.Message}";
+                _logger?.LogError(ex, errorMsg);
+                Console.WriteLine(errorMsg);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                var errorMsg = $"Unexpected error creating note: {ex.GetType().Name} - {ex.Message}";
+                _logger?.LogError(ex, errorMsg);
+                Console.WriteLine(errorMsg);
+                return null;
             }
         }
     }

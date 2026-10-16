@@ -7,30 +7,13 @@
 
 <a href="/notes/create" class="btn btn-primary mb-3">Create New Note</a>
 
-@if (isLoading)
+@if (notes == null)
 {
-    <div class="text-center">
-        <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-        <p class="mt-2"><em>Loading notes...</em></p>
-    </div>
+    <p><em>Loading notes...</em></p>
 }
-else if (!string.IsNullOrEmpty(errorMessage))
+else if (!notes.Any())
 {
-    <div class="alert alert-danger" role="alert">
-        <h6>Connection Error</h6>
-        <p>@errorMessage</p>
-        <button class="btn btn-outline-danger btn-sm" @onclick="LoadNotes">Retry</button>
-    </div>
-}
-else if (notes == null || !notes.Any())
-{
-    <div class="text-center mt-5">
-        <h4 class="text-muted">No notes found</h4>
-        <p class="text-muted">Create your first note to get started!</p>
-        <a href="/notes/create" class="btn btn-primary">Create Your First Note</a>
-    </div>
+    <p>No notes found. Create your first note!</p>
 }
 else
 {
@@ -41,6 +24,10 @@ else
                 <h5 class="card-title">@note.Title</h5>
                 <p class="card-text">@note.Content</p>
                 <small class="text-muted">@note.UpdatedDate.ToString("MMM dd, yyyy")</small>
+                <div class="mt-2">
+                    <a href="/notes/@note.Id" class="btn btn-primary btn-sm">View Details</a>
+                    <a href="/notes/edit/@note.Id" class="btn btn-outline-secondary btn-sm">Edit</a>
+                </div>
             </div>
         </div>
     }
@@ -48,38 +35,9 @@ else
 
 @code {
     private List<Note>? notes;
-    private bool isLoading = true;
-    private string errorMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadNotes();
-    }
-
-    private async Task LoadNotes()
-    {
-        isLoading = true;
-        errorMessage = string.Empty;
-        
-        try
-        {
-            notes = await NotesService.GetNotesAsync();
-            
-            // Check if we got an empty list due to an error
-            if (notes != null && notes.Count == 0)
-            {
-                // This could indicate a connection issue if we expect some default notes
-                errorMessage = "No notes received from server. The API might not be running or accessible.";
-            }
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Failed to load notes: {ex.Message}";
-            notes = new List<Note>();
-        }
-        finally
-        {
-            isLoading = false;
-        }
+        notes = await NotesService.GetNotesAsync();
     }
 }

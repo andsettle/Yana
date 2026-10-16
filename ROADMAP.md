@@ -28,15 +28,15 @@ This document outlines the planned development phases and key tasks for "Yana" (
     ~~* Bind form inputs to a new `Note` object (or a DTO).~~
     ~~* Call `INotesService.CreateNoteAsync()` (will add this to the service).~~
     ~~* Handle success/error messages in the UI.~~
-* **Task 1.3: View Note Details (GET by ID Integration)**
-    * Create a Blazor page/component to display a single note's details.
-    * Implement navigation from the list to the detail view (e.g., using `NavLink` or `NavigationManager`).
-    * Call `INotesService.GetNoteByIdAsync()` (will add this to the service).
-* **Task 1.4: Edit Existing Note Form (PUT Integration)**
-    * Adapt the new note form or create a dedicated edit form.
-    * Pre-populate the form with existing note data fetched via `GetNoteByIdAsync()`.
-    * Call `INotesService.UpdateNoteAsync()` (will add this to the service).
-    * Handle success/error, navigate back to list/details.
+* ~~**Task 1.3: View Note Details (GET by ID Integration)**~~
+    ~~* Create a Blazor page/component to display a single note's details.~~
+    ~~* Implement navigation from the list to the detail view (e.g., using `NavLink` or `NavigationManager`).~~
+    ~~* Call `INotesService.GetNoteByIdAsync()` (will add this to the service).~~
+* ~~**Task 1.4: Edit Existing Note Form (PUT Integration)**~~
+    ~~* Adapt the new note form or create a dedicated edit form.~~
+    ~~* Pre-populate the form with existing note data fetched via `GetNoteByIdAsync()`.~~
+    ~~* Call `INotesService.UpdateNoteAsync()` (will add this to the service).~~
+    ~~* Handle success/error, navigate back to list/details.~~
 * **Task 1.5: Delete Note Functionality (DELETE Integration)**
     * Add a delete button/icon to note list items or detail view.
     * Implement a confirmation dialog.

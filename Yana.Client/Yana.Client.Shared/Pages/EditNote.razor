@@ -1,0 +1,298 @@
+@page "/notes/edit/{NoteId:guid}"
+@using Yana.Client.Shared.Models
+@using Yana.Client.Shared.Services
+@inject INotesService NotesService
+@inject NavigationManager Navigation
+
+<PageTitle>Edit Note</PageTitle>
+
+@if (isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2"><em>Loading note...</em></p>
+    </div>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        <h6>Error Loading Note</h6>
+        <p>@errorMessage</p>
+        <div>
+            <button class="btn btn-outline-danger btn-sm me-2" @onclick="LoadNote">Retry</button>
+            <a href="/notes" class="btn btn-secondary btn-sm">Back to Notes</a>
+        </div>
+    </div>
+}
+else if (editNote == null)
+{
+    <div class="alert alert-warning" role="alert">
+        <h6>Note Not Found</h6>
+        <p>The note you're trying to edit could not be found.</p>
+        <a href="/notes" class="btn btn-secondary">Back to Notes</a>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="/notes">Notes</a></li>
+                        <li class="breadcrumb-item"><a href="/notes/@NoteId">@(originalNote?.Title ?? "Note")</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                    </ol>
+                </nav>
+                <div>
+                    <a href="/notes/@NoteId" class="btn btn-outline-secondary btn-sm">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Edit Note</h4>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="editNote" OnValidSubmit="HandleValidSubmit" FormName="EditNoteForm">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="text-danger" />
+
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <InputText id="title" class="form-control" @bind-Value="editNote.Title" placeholder="Enter note title..." />
+                            <ValidationMessage For="@(() => editNote.Title)" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Content</label>
+                            <InputTextArea id="content" class="form-control" rows="12" @bind-Value="editNote.Content" placeholder="Write your note content here..." />
+                            <ValidationMessage For="@(() => editNote.Content)" class="text-danger" />
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <button type="submit" class="btn btn-primary me-2" disabled="@isSubmitting">
+                                    @if (isSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                        <text>Updating...</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Update Note</text>
+                                    }
+                                </button>
+                                <a href="/notes/@NoteId" class="btn btn-outline-secondary">Cancel</a>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-outline-danger" @onclick="ShowDeleteConfirmation">
+                                    Delete Note
+                                </button>
+                            </div>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Note Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <small class="text-muted">Note ID</small>
+                        <div class="font-monospace small">@NoteId</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Created</small>
+                        <div>@originalNote?.CreatedDate.ToString("MMM dd, yyyy 'at' h:mm tt")</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Last Modified</small>
+                        <div>@originalNote?.UpdatedDate.ToString("MMM dd, yyyy 'at' h:mm tt")</div>
+                    </div>
+                    <div>
+                        <small class="text-muted">Character Count</small>
+                        <div>@(editNote?.Content?.Length ?? 0) characters</div>
+                    </div>
+                </div>
+            </div>
+            
+            @if (hasChanges)
+            {
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <div class="alert alert-info mb-0">
+                            <small><i class="bi bi-info-circle me-2"></i>You have unsaved changes.</small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(updateErrorMessage))
+    {
+        <div class="alert alert-danger mt-3" role="alert">
+            @updateErrorMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success mt-3" role="alert">
+            @successMessage
+        </div>
+    }
+}
+
+@if (showDeleteConfirmation)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" @onclick="HideDeleteConfirmation"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the note "<strong>@editNote?.Title</strong>"?</p>
+                    <p class="text-muted">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HideDeleteConfirmation">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteNote">Delete Note</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid NoteId { get; set; }
+
+    private Note? originalNote;
+    private Note? editNote;
+    private bool isLoading = true;
+    private bool isSubmitting = false;
+    private string errorMessage = string.Empty;
+    private string updateErrorMessage = string.Empty;
+    private string successMessage = string.Empty;
+    private bool showDeleteConfirmation = false;
+
+    private bool hasChanges => editNote != null && originalNote != null && 
+        (editNote.Title != originalNote.Title || editNote.Content != originalNote.Content);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadNote();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadNote();
+    }
+
+    private async Task LoadNote()
+    {
+        isLoading = true;
+        errorMessage = string.Empty;
+        updateErrorMessage = string.Empty;
+        successMessage = string.Empty;
+        
+        try
+        {
+            originalNote = await NotesService.GetNoteByIdAsync(NoteId);
+            
+            if (originalNote != null)
+            {
+                // Create a copy for editing
+                editNote = new Note
+                {
+                    Id = originalNote.Id,
+                    Title = originalNote.Title,
+                    Content = originalNote.Content,
+                    CreatedDate = originalNote.CreatedDate,
+                    UpdatedDate = originalNote.UpdatedDate
+                };
+            }
+            else
+            {
+                errorMessage = "Note not found or could not be loaded.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load note: {ex.Message}";
+            originalNote = null;
+            editNote = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (editNote == null) return;
+
+        isSubmitting = true;
+        updateErrorMessage = string.Empty;
+        successMessage = string.Empty;
+
+        try
+        {
+            var updatedNote = await NotesService.UpdateNoteAsync(NoteId, editNote);
+            
+            if (updatedNote != null)
+            {
+                successMessage = "Note updated successfully!";
+                originalNote = updatedNote;
+                
+                // Navigate back to note details after a short delay
+                await Task.Delay(1500);
+                Navigation.NavigateTo($"/notes/{NoteId}");
+            }
+            else
+            {
+                updateErrorMessage = "Failed to update note. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            updateErrorMessage = $"An error occurred while updating: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void ShowDeleteConfirmation()
+    {
+        showDeleteConfirmation = true;
+    }
+
+    private void HideDeleteConfirmation()
+    {
+        showDeleteConfirmation = false;
+    }
+
+    private void DeleteNote()
+    {
+        // TODO: Implement delete functionality in Task 1.5
+        HideDeleteConfirmation();
+        // For now, just navigate back to the list
+        Navigation.NavigateTo("/notes");
+    }
+}

@@ -11,5 +11,7 @@ namespace Yana.Client.Shared.Services
     {
         Task<List<Note>> GetNotesAsync();
         Task<Note?> CreateNoteAsync(Note note);
+        Task<Note?> GetNoteByIdAsync(Guid id);
+        Task<Note?> UpdateNoteAsync(Guid id, Note note);
     }
 }

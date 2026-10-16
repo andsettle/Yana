@@ -1,0 +1,211 @@
+@page "/notes/{NoteId:guid}"
+@using Yana.Client.Shared.Models
+@using Yana.Client.Shared.Services
+@inject INotesService NotesService
+@inject NavigationManager Navigation
+
+<PageTitle>Note Details</PageTitle>
+
+@if (isLoading)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2"><em>Loading note details...</em></p>
+    </div>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        <h6>Error Loading Note</h6>
+        <p>@errorMessage</p>
+        <div>
+            <button class="btn btn-outline-danger btn-sm me-2" @onclick="LoadNote">Retry</button>
+            <a href="/notes" class="btn btn-secondary btn-sm">Back to Notes</a>
+        </div>
+    </div>
+}
+else if (note == null)
+{
+    <div class="alert alert-warning" role="alert">
+        <h6>Note Not Found</h6>
+        <p>The note you're looking for could not be found.</p>
+        <a href="/notes" class="btn btn-secondary">Back to Notes</a>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="/notes">Notes</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">@note.Title</li>
+                    </ol>
+                </nav>
+                <div>
+                    <a href="/notes/edit/@note.Id" class="btn btn-outline-primary btn-sm me-2">Edit</a>
+                    <a href="/notes" class="btn btn-secondary btn-sm">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">@note.Title</h4>
+                </div>
+                <div class="card-body">
+                    <div class="note-content mb-4">
+                        @((MarkupString)note.Content.Replace("\n", "<br/>"))
+                    </div>
+                    
+                    <hr />
+                    
+                    <div class="row text-muted">
+                        <div class="col-md-6">
+                            <small>
+                                <strong>Created:</strong> @note.CreatedDate.ToString("MMMM dd, yyyy 'at' h:mm tt")
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <small>
+                                <strong>Last Modified:</strong> @note.UpdatedDate.ToString("MMMM dd, yyyy 'at' h:mm tt")
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="/notes/edit/@note.Id" class="btn btn-primary">
+                            <i class="bi bi-pencil me-2"></i>Edit Note
+                        </a>
+                        <button class="btn btn-outline-danger" @onclick="ShowDeleteConfirmation">
+                            <i class="bi bi-trash me-2"></i>Delete Note
+                        </button>
+                        <a href="/notes" class="btn btn-outline-secondary">
+                            <i class="bi bi-list me-2"></i>Back to Notes
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Note Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <small class="text-muted">Note ID</small>
+                        <div class="font-monospace small">@note.Id</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Character Count</small>
+                        <div>@note.Content.Length characters</div>
+                    </div>
+                    <div>
+                        <small class="text-muted">Word Count</small>
+                        <div>@(note.Content.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length) words</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (showDeleteConfirmation)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" @onclick="HideDeleteConfirmation"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the note "<strong>@note?.Title</strong>"?</p>
+                    <p class="text-muted">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HideDeleteConfirmation">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteNote">Delete Note</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid NoteId { get; set; }
+
+    private Note? note;
+    private bool isLoading = true;
+    private string errorMessage = string.Empty;
+    private bool showDeleteConfirmation = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadNote();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // This handles when the route parameter changes
+        await LoadNote();
+    }
+
+    private async Task LoadNote()
+    {
+        isLoading = true;
+        errorMessage = string.Empty;
+        
+        try
+        {
+            note = await NotesService.GetNoteByIdAsync(NoteId);
+            
+            if (note == null)
+            {
+                errorMessage = "Note not found or could not be loaded.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load note: {ex.Message}";
+            note = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ShowDeleteConfirmation()
+    {
+        showDeleteConfirmation = true;
+    }
+
+    private void HideDeleteConfirmation()
+    {
+        showDeleteConfirmation = false;
+    }
+
+    private void DeleteNote()
+    {
+        // TODO: Implement delete functionality in Task 1.5
+        HideDeleteConfirmation();
+        // For now, just navigate back to the list
+        Navigation.NavigateTo("/notes");
+    }
+}
